@@ -1,0 +1,204 @@
+  %% chat
+  Future<String> chat(data) async {
+    try {
+      final socket = await Socket.connect(ipaddress, 80);
+      socket.write(data);
+      final response = await socket.transform(StreamTransformer.fromHandlers(
+        handleData: (data, sink) {
+          sink.add(utf8.decode(data));
+        },
+      )).first;
+      socket.close();
+      return response.toString();
+    } catch (e) {
+      print('Error: $e');
+      return "error : $e";
+    }
+  }
+}
+
+
+
+
+
+%% stream
+
+class WifiScanner {
+  final String ipAddress = "192.168.43.78";
+
+  Stream<String> readSensorValues() async* {
+    final socket = await Socket.connect(ipAddress, 80);
+    try {
+      while (true) {
+        // Send command to read sensor values
+        final response = await chat("read-sensors", socket);
+
+        // Yield the response as a stream value
+        yield response;
+
+        // Wait for 1 second before reading the sensors again
+        await Future.delayed(Duration(seconds: 1));
+      }
+    } finally {
+      socket.close();
+    }
+  }
+
+  Future<String> chat(String data, Socket socket) async {
+    socket.write(data);
+    final response = await socket.transform(StreamTransformer.fromHandlers(
+      handleData: (data, sink) {
+        sink.add(utf8.decode(data));
+      },
+    )).first;
+    print(response.toString().trim());
+    return response.toString().trim();
+  }
+}
+
+
+
+%% esp echo to client
+
+
+#include <WiFi.h>
+#define LED 2
+
+const char* ssid = "HS";
+const char* password = "&&&&2222";
+
+WiFiServer server(80);
+
+void setup() {
+  Serial.begin(115200);
+
+  // Connect to Wi-Fi network
+  WiFi.begin(ssid, password);
+  while (WiFi.status() != WL_CONNECTED) {
+    delay(1000);
+    Serial.println("Connecting to WiFi...");
+  }
+  Serial.println("");Serial.print("ESP32 IP address: ");Serial.println(WiFi.localIP());
+
+  // Start server
+  server.begin();
+  Serial.println("Server started");
+}
+
+void loop() {
+    digitalWrite(LED,HIGH);
+
+  // Wait for a client to connect
+  WiFiClient client = server.available();
+  if (client) {
+    Serial.println("Client connected");
+
+    // Wait for incoming data
+    while (client.connected()) {
+      if (client.available()) {
+        String message = client.readStringUntil('\n');
+        if (message == "1") {
+        digitalWrite(LED,HIGH);
+        
+    Serial.println("led on");
+
+    } else if (message == "0") {
+        digitalWrite(LED,LOW);
+            Serial.println(" led off");
+
+
+    } 
+        Serial.println("get: "+message);
+
+        // Send response back to client
+        client.println("Received: " + message);
+        client.stop();
+    Serial.println("Client disconnected");
+      }
+    }
+
+    
+  }
+}
+
+
+
+%% home StatelessWidget
+
+
+import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:get/get_state_manager/src/rx_flutter/rx_obx_widget.dart';
+import 'controller.dart';
+
+class HomeScreen extends StatelessWidget {
+  String _status = "idle";
+  final TextEditingController _addresscon = TextEditingController(text: "111");
+final randomcontroller = Get.put(RandomStreamController());
+
+  @override
+  Widget build(BuildContext context) {
+    
+    return Scaffold(
+      body: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Container(
+            alignment: Alignment.center,
+            padding: const EdgeInsets.all(30),
+            child: Text(
+              _status.toString(),
+            ),
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Container(
+                padding: const EdgeInsets.all(30),
+                child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+                  onPressed: () async {},
+                  child: const Icon(
+                    Icons.play_circle,
+                  ),
+                ),
+              ),
+              Container(
+                padding: const EdgeInsets.all(30),
+                child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+                  onPressed: () => _press(reset: true),
+                  child: const Icon(
+                    Icons.stop_circle_rounded,
+                  ),
+                ),
+              ),
+              Container(
+                padding: const EdgeInsets.all(30),
+                child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+                  onPressed: _press,
+                  child: const Icon(
+                    Icons.back_hand_rounded,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          Container(
+            padding: const EdgeInsets.all(30),
+            child: TextField(
+              controller: _addresscon,
+            ),
+          ),
+          Container(
+            padding: EdgeInsets.all(30),
+            child: Obx(() => Text(
+                  randomValueController.randomValue.value,
+                )),
+          ),
+        ],
+      ),
+    );
+  }
+}
