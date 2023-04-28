@@ -44,7 +44,7 @@ digitalWrite(LED,HIGH);
     String message = animalWords[randomIndex];
       Serial.println("send : " + message);
       client.println(message);
-      delay(1);
+      delay(10000);
       client.stop();
       Serial.println("Client disconnected");
       }

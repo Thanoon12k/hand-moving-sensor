@@ -15,6 +15,8 @@ class HomeScreen extends StatelessWidget {
   final TextEditingController txtcon = TextEditingController();
   final TextToSpeechController tts = Get.put(TextToSpeechController());
   final SpeachToTextController stt = Get.put(SpeachToTextController());
+  final generator = RandomIntStreamGenerator();
+  final espgenrate = ESPStream();
 
   HomeScreen({super.key});
 
@@ -105,8 +107,23 @@ class HomeScreen extends StatelessWidget {
               ),
             ),
           ),
-          const Expanded(child: Text("")),
-          const SizedBox(height: 35),
+          Center(
+            child: StreamBuilder<String>(
+              stream: espgenrate.generateStream(),
+              builder: (context, snapshot) {
+                if (snapshot.hasData) {
+                  return Center(
+                      child: Text(
+                    snapshot.data.toString(),
+                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.w500),
+                  ));
+                } else {
+                  return Center(child: CircularProgressIndicator());
+                }
+              },
+            ),
+          ),
+          const SizedBox(height: 10),
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
@@ -119,7 +136,7 @@ class HomeScreen extends StatelessWidget {
                 buttonIcon: const Icon(Icons.waving_hand_outlined),
                 buttonText: "MOVE HAND",
                 handword: "Hello",
-              )
+              ),
             ],
           ),
           const SizedBox(

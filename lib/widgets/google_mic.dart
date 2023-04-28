@@ -65,7 +65,7 @@ class _GoogleIconButtonState extends State<GoogleIconButton>
       _isPressed = true;
     });
     if (widget.buttonText == "MOVE HAND") {
-      String _word = (await ConnectionManager().getMessage());
+      String _word = (await ConnectionManager().getoneword());
 
       tts.speak(_word);
     } else {
