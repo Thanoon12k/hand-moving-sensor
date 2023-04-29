@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'dart:math';
+import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -12,29 +13,30 @@ class EspManager extends GetxController {
   RxString mode = "unknown".obs;
   RxString new_word = "unknown".obs;
   RxBool waiting_now = false.obs;
-  late Socket espsocket;
-  StreamController<String?> espscon = StreamController();
-  late Stream<String?> mydatastream = espscon.stream.asBroadcastStream();
-  late StreamSubscription consolsubscriber;
-  late StreamSubscription textsubscriber;
-  void _initSocket() async {
+  RxString connection_status = "not connected".obs;
+  late Socket espsocket ;
+
+  Future _initSocket() async {
     try {
       waiting_now.value = true;
       espsocket = await Socket.connect('192.168.43.78', 80,
           timeout: const Duration(seconds: 3));
       waiting_now.value = false;
-      debugPrint(' connecting ok: $espsocket');
+      connection_status.value = "connected";
     } catch (e) {
       waiting_now.value = false;
-      debugPrint('no connecting to socket: $e');
+      connection_status.value = "not connected";
     }
   }
 
   Future<void> GetEspData() async {
+    if (connection_status.value == "not connected") {
+      await _initSocket();
+    }
     var randint;
-    await Timer.periodic(Duration(seconds: 3), (timer) async {
+    await Timer.periodic(Duration(seconds: 1), (timer) async {
       randint = Random().nextInt(100);
-     
+
       if (mode.value == "idle") {
         new_word.value = "idle";
         timer.cancel();
@@ -42,27 +44,31 @@ class EspManager extends GetxController {
         timer.cancel();
         new_word.value = "talking now";
       } else if (mode.value == "esp") {
-        new_word.value = randint.toString();
+        await GetNextWord();
       }
-       debugPrint("$mode $randint");
-      
+      // debugPrint("$mode $randint");
     });
+  }
 
-    // try {
-    //   var new_word = await espsocket.transform(StreamTransformer.fromHandlers(
-    //     handleData: (data, sink) {
-    //       sink.add(utf8.decode(data));
-    //     },
-    //   )).first;
-    //   return new_word.toString();
-    // } catch (e) {
-    //   debugPrint('Error: $e');
-    //   return "err ${Random().nextInt(100).toString()} : $e";
-    // }
+  Future<String?> GetNextWord() async {
+    try {
+    
+      final response = await espsocket.transform(StreamTransformer.fromHandlers(
+        handleData: (data, _) {
+          new_word.value = utf8.decode(data);
+        },
+      )).first;
+      connection_status.value = "connected";
+    } catch (e) {
+      connection_status.value = "not connected";
+
+      debugPrint('Error: $e');
+      return "err ${Random().nextInt(100).toString()} : $e";
+    }
   }
 
   Future<bool> isespconnected() async {
-    return true;
+    return (await espsocket.isEmpty & await espsocket.isEmpty);
   }
 
   Future<void> waitSeconds(int seconds) async {
@@ -76,9 +82,15 @@ class EspManager extends GetxController {
   @override
   void onInit() {
     super.onInit();
-    consolsubscriber = mydatastream.listen((event) {
-      debugPrint("event > ${event.toString()}");
-    });
+
     _initSocket();
+  }
+
+  @override
+  void dispose() {
+    // TODO: implement dispose
+    super.dispose();
+    espsocket.destroy();
+    EspManager().dispose();
   }
 }

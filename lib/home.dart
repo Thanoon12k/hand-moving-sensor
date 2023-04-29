@@ -20,6 +20,9 @@ class HomeScreen extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Obx(
+              () => MyText(buttontext: espcontroller.connection_status.value),
+            ),
+            Obx(
               () => MyText(buttontext: espcontroller.new_word.value),
             ),
             Row(
