@@ -9,8 +9,6 @@ class HomeScreen extends StatelessWidget {
   var buttontext = "new";
   @override
   Widget build(BuildContext context) {
-    Stream<String?> ss = espcontroller.GetNextWord();
-
     return Scaffold(
         appBar: AppBar(
           title: const Text(
@@ -22,7 +20,7 @@ class HomeScreen extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             StreamBuilder<String?>(
-                stream: ss,
+                stream: espcontroller.mydatastream,
                 builder: (_, snapshot) {
                   debugPrint("sanp ${snapshot.connectionState.name}");
                   if (snapshot.hasData) {
@@ -35,6 +33,11 @@ class HomeScreen extends StatelessWidget {
                     );
                   }
                 }),
+            Obx(
+              () => MyButton(
+                  buttontext: espcontroller.new_word.value,
+                  controller: espcontroller),
+            ),
             Row(
               children: [
                 MyButton(buttontext: "GET DATA", controller: espcontroller),
@@ -72,13 +75,13 @@ class MyButton extends StatelessWidget {
       child: ElevatedButton(
           onPressed: () {
             if (buttontext == "GET DATA") {
+              controller.GetEspData();
               controller.mode.value = "esp";
             } else if (buttontext == "TALK") {
               controller.mode.value = "talking";
             } else if (buttontext == "SET IDLE") {
               controller.mode.value = "idle";
             }
-            controller.GetEspData();
           },
           child: Text(
             buttontext,
