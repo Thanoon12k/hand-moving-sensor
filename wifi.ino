@@ -1,4 +1,3 @@
-
 #include <WiFi.h>
 #define LED 2
 
@@ -24,32 +23,25 @@ void setup() {
 }
 
 void loop() {
-    digitalWrite(LED,LOW);
-digitalWrite(LED,HIGH);
-
   // Wait for a client to connect
   WiFiClient client = server.available();
   if (client) {
     Serial.println("Client connected");
 
-    // Wait for incoming data
-     
     // Choose a random animal word to send
-    String animalWords[10] = {"cat", "dog", "elephant", "giraffe", "lion", "monkey", "panda", "tiger", "whale", "zebra"};
-    
+    String animalWords[10] = {"cat is prity", "dog", "elephant is heaver", "giraffe is taller", "lion is strongest alement in forest", "monkey", "panda", "tiger", "whale", "zebra"};
 
-    // Wait for incoming data
+    // Send continuous messages to the client
     while (client.connected()) {
       int randomIndex = random(10);
-    String message = animalWords[randomIndex];
+      String message = animalWords[randomIndex];
       Serial.println("send : " + message);
       client.println(message);
-      delay(10000);
-      client.stop();
-      Serial.println("Client disconnected");
-      }
+      delay(1000); // Wait before sending the next message
     }
 
-    
-  
+    // Disconnect the client when the connection is lost
+    client.stop();
+    Serial.println("Client disconnected");
+  }
 }

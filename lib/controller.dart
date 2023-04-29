@@ -4,66 +4,62 @@ import 'dart:io';
 import 'dart:math';
 import 'dart:typed_data';
 
+import 'package:ansicolor/ansicolor.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:wifi/printers.dart';
+import 'package:wifi/tts_controller.dart';
 
 class EspManager extends GetxController {
-  late Future waitintime = Future.delayed(const Duration(seconds: 2));
   late Timer myTimer;
+  Text2SpeechManager speakmanager = Text2SpeechManager();
   RxString mode = "unknown".obs;
   RxString new_word = "unknown".obs;
   RxBool waiting_now = false.obs;
   RxString connection_status = "not connected".obs;
-  late Socket espsocket ;
+  late Socket espsocket;
 
-  Future _initSocket() async {
+  Future<void> initSocket() async {
     try {
       waiting_now.value = true;
       espsocket = await Socket.connect('192.168.43.78', 80,
-          timeout: const Duration(seconds: 3));
+          timeout: const Duration(minutes: 5));
       waiting_now.value = false;
       connection_status.value = "connected";
+      printGreen("client : iam connected now");
     } catch (e) {
       waiting_now.value = false;
       connection_status.value = "not connected";
+      printRed("client : iam not connected now");
     }
   }
 
-  Future<void> GetEspData() async {
-    if (connection_status.value == "not connected") {
-      await _initSocket();
-    }
-    var randint;
-    await Timer.periodic(Duration(seconds: 1), (timer) async {
-      randint = Random().nextInt(100);
-
-      if (mode.value == "idle") {
-        new_word.value = "idle";
-        timer.cancel();
-      } else if (mode.value == "talking") {
-        timer.cancel();
-        new_word.value = "talking now";
-      } else if (mode.value == "esp") {
-        await GetNextWord();
+  Future<void> ListernToEsp() async {
+    if (connection_status.value == "connected") {
+      {
+        espsocket.listen(
+          (Uint8List data) async {
+            String? resp = String.fromCharCodes(data);
+            if (resp.length < 3) {
+              printBlue("Client empty");
+            } else {
+              await Future.delayed(Duration(seconds: 5));
+              new_word.value = resp;
+              printBlue("Client $resp");
+              await speakmanager.speak(resp);
+            }
+          },
+          onError: (e) {
+            printRed("Client error in listening $e");
+          },
+          cancelOnError: false,
+          onDone: () async {
+            // espsocket.destroy();
+            printYellow("Client iam don and destroed");
+            // await initSocket();
+          },
+        );
       }
-      // debugPrint("$mode $randint");
-    });
-  }
-
-  Future<String?> GetNextWord() async {
-    try {
-    
-      final response = await espsocket.transform(StreamTransformer.fromHandlers(
-        handleData: (data, _) {
-          new_word.value = utf8.decode(data);
-        },
-      )).first;
-      connection_status.value = "connected";
-    } catch (e) {
-      connection_status.value = "not connected";
-
-      debugPrint('Error: $e');
-      return "err ${Random().nextInt(100).toString()} : $e";
     }
   }
 
@@ -80,10 +76,11 @@ class EspManager extends GetxController {
   }
 
   @override
-  void onInit() {
+  void onInit() async {
     super.onInit();
-
-    _initSocket();
+    speakmanager.onInit();
+    await initSocket();
+    await ListernToEsp();
   }
 
   @override

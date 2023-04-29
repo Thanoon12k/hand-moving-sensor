@@ -3,9 +3,11 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:wifi/controller.dart';
+import 'package:wifi/tts_controller.dart';
 
 class HomeScreen extends StatelessWidget {
   EspManager espcontroller = Get.put(EspManager());
+  Text2SpeechManager ttscontroller = Get.put(Text2SpeechManager());
   var buttontext = "new";
   @override
   Widget build(BuildContext context) {
@@ -27,9 +29,18 @@ class HomeScreen extends StatelessWidget {
             ),
             Row(
               children: [
-                MyButton(buttontext: "GET DATA", controller: espcontroller),
-                MyButton(buttontext: 'SET IDLE', controller: espcontroller),
-                MyButton(buttontext: "TALK", controller: espcontroller),
+                MyButton(
+                    buttontext: "GET DATA",
+                    controller: espcontroller,
+                    ttscontroller: ttscontroller),
+                MyButton(
+                    buttontext: 'SET IDLE',
+                    controller: espcontroller,
+                    ttscontroller: ttscontroller),
+                MyButton(
+                    buttontext: "TALK",
+                    controller: espcontroller,
+                    ttscontroller: ttscontroller),
               ],
             ),
             Obx(
@@ -50,24 +61,26 @@ class MyButton extends StatelessWidget {
     super.key,
     required this.buttontext,
     required this.controller,
+    required this.ttscontroller,
   });
 
   final String buttontext;
   final EspManager controller;
+  final Text2SpeechManager ttscontroller;
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: EdgeInsets.all(8),
+      padding:const EdgeInsets.all(8),
       child: ElevatedButton(
-          onPressed: () {
+          onPressed: () async {
             if (buttontext == "GET DATA") {
               controller.mode.value = "esp";
-              controller.GetEspData();
+              await controller.initSocket();
             } else if (buttontext == "TALK") {
               controller.mode.value = "talking";
             } else if (buttontext == "SET IDLE") {
-              controller.mode.value = "idle";
+              ttscontroller.speak(controller.new_word.value);
             }
           },
           child: Text(
