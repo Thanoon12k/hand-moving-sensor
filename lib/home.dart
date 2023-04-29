@@ -19,24 +19,8 @@ class HomeScreen extends StatelessWidget {
         body: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            StreamBuilder<String?>(
-                stream: espcontroller.mydatastream,
-                builder: (_, snapshot) {
-                  debugPrint("sanp ${snapshot.connectionState.name}");
-                  if (snapshot.hasData) {
-                    return MyText(
-                      buttontext: snapshot.data.toString(),
-                    );
-                  } else {
-                    return const MyText(
-                      buttontext: "no data here",
-                    );
-                  }
-                }),
             Obx(
-              () => MyButton(
-                  buttontext: espcontroller.new_word.value,
-                  controller: espcontroller),
+              () => MyText(buttontext: espcontroller.new_word.value),
             ),
             Row(
               children: [
@@ -75,8 +59,8 @@ class MyButton extends StatelessWidget {
       child: ElevatedButton(
           onPressed: () {
             if (buttontext == "GET DATA") {
-              controller.GetEspData();
               controller.mode.value = "esp";
+              controller.GetEspData();
             } else if (buttontext == "TALK") {
               controller.mode.value = "talking";
             } else if (buttontext == "SET IDLE") {
