@@ -1,11 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'controller.dart';
+import 'controllers.dart';
 import 'home.dart';
 
-class WifiScreen extends StatelessWidget {
+class WifiScreen extends StatefulWidget {
   WifiScreen({super.key});
-  final ConnectionManager connectionManager = Get.put(ConnectionManager());
+
+  @override
+  State<WifiScreen> createState() => _WifiScreenState();
+}
+
+class _WifiScreenState extends State<WifiScreen> {
+  TextEditingController addresstext = TextEditingController();
+
+  final ESPStream espgenrate = ESPStream();
+
+  String _connection_status = "not connectd";
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -25,7 +35,7 @@ class WifiScreen extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(30),
             child: TextField(
-              controller: connectionManager.txtcon,
+              controller: addresstext,
               decoration: const InputDecoration(
                 hintText: "0000.0000.0000.0000 ",
                 helperText: "Enter ESP32 IP Address ",
@@ -35,31 +45,34 @@ class WifiScreen extends StatelessWidget {
           ),
           Container(
             padding: const EdgeInsets.all(30),
-            child: Obx(
-              () => ElevatedButton(
-                onPressed: () async {
-                  await connectionManager.updateConnectionStatus();
-                },
-                style: ElevatedButton.styleFrom(
-                    backgroundColor: connectionManager.is_connected.value
-                        ? Colors.lightBlue
-                        : Colors.orangeAccent),
-                child: const Icon(
-                  Icons.wifi,
-                  size: 150,
-                ),
+            child: ElevatedButton(
+              onPressed: () {
+                if (espgenrate.is_connected) {
+                  espgenrate.is_connected = false;
+                  _connection_status = "not connected";
+                } else {
+                  espgenrate.is_connected = true;
+                  _connection_status = "ESP is connected enjoy";
+                }
+                setState(() {});
+              },
+              style: ElevatedButton.styleFrom(
+                  backgroundColor: espgenrate.is_connected
+                      ? Colors.lightBlue
+                      : Colors.orangeAccent),
+              child: const Icon(
+                Icons.wifi,
+                size: 150,
               ),
             ),
           ),
-          Obx(
-            () => Container(
-                padding: EdgeInsets.all(30),
-                child: Text(
-                  connectionManager.connection_status.value,
-                  style: const TextStyle(
-                      fontSize: 30, fontWeight: FontWeight.w700),
-                )),
-          )
+          Container(
+              padding: EdgeInsets.all(30),
+              child: Text(
+                _connection_status,
+                style:
+                    const TextStyle(fontSize: 30, fontWeight: FontWeight.w700),
+              )),
         ],
       ),
     );

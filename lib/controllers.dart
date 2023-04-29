@@ -1,12 +1,91 @@
+import 'dart:async';
+import 'dart:convert';
+import 'dart:ffi';
+import 'dart:io';
 import 'dart:math';
 
-import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_tts/flutter_tts.dart';
 import 'package:get/get.dart';
-import 'package:speech_to_text/speech_recognition_result.dart';
+import 'package:speech_to_text/speech_to_text.dart';
 import 'package:speech_to_text/speech_to_text.dart' as stt;
+
+import 'package:speech_to_text/speech_recognition_result.dart';
 import 'package:speech_to_text/speech_to_text.dart';
 
-class SpeachToTextController extends GetxController {
+class FreshStream {
+  late StreamController mystreamcon = StreamController();
+  late Stream mystream = mystreamcon.stream;
+
+  void add() {
+    mystreamcon.sink.add(2);
+  }
+}
+
+class ESPStream extends GetxController {
+  bool is_connected = false;
+  bool is_listening = false;
+  bool is_error = false;
+  bool is_waiting = false;
+  Timer? _subscription;
+  late Socket espsocket;
+  final _controller = StreamController<String>();
+
+  handleConnection() async {
+    if (!is_connected) {
+      try {
+        is_waiting = true;
+        espsocket = await Socket.connect("192.168.43.78", 80,
+            timeout: Duration(seconds: 3));
+        is_connected = true;
+        is_error = false;
+        is_waiting = false;
+      } catch (e) {
+        is_waiting = false;
+        is_error = true;
+
+        debugPrint("conn error > $e");
+      }
+    } else {
+      await espsocket.close();
+      is_connected = false;
+    }
+  }
+
+  generateStream() {
+    if (is_connected) {
+      _subscription = Timer.periodic(const Duration(seconds: 1), (timer) async {
+        try {
+          final response =
+              await espsocket.transform(StreamTransformer.fromHandlers(
+            handleData: (data, sink) {
+              sink.add(utf8.decode(data));
+            },
+          )).first;
+          _controller.add(response.toString());
+        } catch (e) {
+          debugPrint('Error: $e');
+        }
+      });
+      return _controller.stream;
+    } else {}
+  }
+
+  void stopGenerator() {
+    _subscription?.cancel();
+
+    _subscription = null;
+  }
+}
+
+class Text2Speech {
+  final FlutterTts flutterTts = FlutterTts();
+  Future speak(String message) async {
+    await flutterTts.speak(message);
+  }
+}
+
+class Speech2TExt extends GetxController {
   String lastWords = "";
   String lastStatus = "";
   String lasterror = "";
@@ -81,7 +160,5 @@ class SpeachToTextController extends GetxController {
   void resultListener(SpeechRecognitionResult result) {
     lastWords = "${result.recognizedWords} - ${result.finalResult}";
     diplayed_text.value = lastWords;
-
-    debugPrint("last: $lastWords "); //print the user's speech on the console
   }
 }
