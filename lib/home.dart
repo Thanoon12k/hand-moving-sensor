@@ -5,6 +5,7 @@ import 'package:get/get.dart';
 import 'package:wifi/controller.dart';
 import 'package:wifi/stt_controller.dart';
 import 'package:wifi/tts_controller.dart';
+import 'package:wifi/wifi.dart';
 
 class HomeScreen extends StatelessWidget {
   EspManager espcontroller = Get.put(EspManager());
@@ -15,6 +16,12 @@ class HomeScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
+          leading: IconButton(
+            icon: const Icon(Icons.bluetooth),
+            onPressed: () => Get.to(() => WIFISCREEN(
+                  connecttd_status: espcontroller.connection_status.value,
+                )),
+          ),
           title: const Text(
             'REACH TO ALL',
             style: TextStyle(color: Colors.white, fontSize: 24),
@@ -89,9 +96,7 @@ class MyButton extends StatelessWidget {
           onPressed: () async {
             if (buttontext == "GET DATA") {
               await ttscontroller.speak(controller.hand_text.value);
-
               controller.mode.value = "esp";
-
               await controller.initSocket();
             } else if (buttontext == "TALK") {
               controller.mode.value = "talking";

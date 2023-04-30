@@ -7,7 +7,6 @@ import 'dart:typed_data';
 import 'package:ansicolor/ansicolor.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:wifi/printers.dart';
 import 'package:wifi/tts_controller.dart';
 
 class EspManager extends GetxController {
@@ -16,7 +15,7 @@ class EspManager extends GetxController {
   RxString mode = "unknown".obs;
   RxString hand_text = "unknown".obs;
   RxBool waiting_now = false.obs;
-  RxString connection_status = "not connected".obs;
+  RxBool connection_status = false.obs;
   late Socket espsocket;
 
   Future<void> initSocket() async {
@@ -25,12 +24,12 @@ class EspManager extends GetxController {
       espsocket = await Socket.connect('192.168.43.78', 80,
           timeout: const Duration(minutes: 5));
       waiting_now.value = false;
-      connection_status.value = "connected";
-      printGreen("client : iam connected now");
+      connection_status.value =true;
+      debugPrint("client : iam connected now");
     } catch (e) {
       waiting_now.value = false;
-      connection_status.value = "not connected";
-      printRed("client : iam not connected now");
+      connection_status.value = false;
+      debugPrint("client : iam not connected now");
     }
   }
 
@@ -41,21 +40,21 @@ class EspManager extends GetxController {
           (Uint8List data) async {
             String? resp = String.fromCharCodes(data);
             if (resp.length < 3) {
-              printBlue("Client empty");
+              debugPrint("Client empty");
             } else {
               await Future.delayed(Duration(seconds: 5));
               hand_text.value = resp;
-              printBlue("Client $resp");
+              debugPrint("Client $resp");
               await speakmanager.speak(resp);
             }
           },
           onError: (e) {
-            printRed("Client error in listening $e");
+            debugPrint("Client error in listening $e");
           },
           cancelOnError: false,
           onDone: () async {
             // espsocket.destroy();
-            printYellow("Client iam don and destroed");
+            debugPrint("Client iam don and destroed");
             // await initSocket();
           },
         );

@@ -28,7 +28,6 @@ class Speech2TextManager extends GetxController {
           onResult: (result) {
             talk_text.value = result.recognizedWords;
             is_listining.value = true;
-
             debugPrint("res ${result.toString()}");
           },
         );
