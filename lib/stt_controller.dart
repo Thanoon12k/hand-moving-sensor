@@ -5,11 +5,14 @@ import 'package:permission_handler/permission_handler.dart';
 
 class Speech2TextManager extends GetxController {
   late SpeechToText stt;
+  RxString language = "العربية".obs;
+  String _lang_id = "العربية";
   RxString talk_text = "not talking".obs;
   RxBool is_listining = false.obs;
 
   void stt_init() {
     stt.initialize(
+      
       onStatus: (s) {
         talk_text.value = s.toString();
         debugPrint("sttus ${s.toString()}");
@@ -25,6 +28,7 @@ class Speech2TextManager extends GetxController {
     if (stt.isAvailable) {
       if (!is_listining.value) {
         stt.listen(
+         
           onResult: (result) {
             talk_text.value = result.recognizedWords;
             is_listining.value = true;
@@ -43,6 +47,24 @@ class Speech2TextManager extends GetxController {
     await stt.stop();
   }
 
+  void _checkPermission() async {
+    var status = await Permission.microphone.status;
+    if (status.isDenied) {
+      await Permission.microphone.request();
+    }
+    print("permision < ${status} >");
+  }
+
+  void toggleLanguage()  {
+    if (_lang_id == "en-us") {
+      _lang_id = "ar-eg";
+      language.value = "العربية";
+    } else {
+      _lang_id = "en-us";
+      language.value = "English";
+    }
+  }
+
   @override
   void onInit() async {
     // TODO: implement onInit
@@ -51,13 +73,5 @@ class Speech2TextManager extends GetxController {
     stt_init();
 
     super.onInit();
-  }
-
-  void _checkPermission() async {
-    var status = await Permission.microphone.status;
-    if (status.isDenied) {
-      await Permission.microphone.request();
-    }
-    print("permisiion getter $status");
   }
 }

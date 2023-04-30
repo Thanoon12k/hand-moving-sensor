@@ -1,35 +1,45 @@
 import 'dart:async';
-import 'dart:convert';
 import 'dart:io';
-import 'dart:math';
 import 'dart:typed_data';
 
-import 'package:ansicolor/ansicolor.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:wifi/tts_controller.dart';
 
 class EspManager extends GetxController {
+  String? ipaddress;
   late Timer myTimer;
+
+  List<String> AppStates = ["idle",'waiting_esp_connect', 'gettingdata','speaking', 'talking'];
+  RxString current_state = "idle".obs;
   Text2SpeechManager speakmanager = Text2SpeechManager();
-  RxString mode = "unknown".obs;
+  RxString mode = "idle".obs;
   RxString hand_text = "unknown".obs;
   RxBool waiting_now = false.obs;
   RxBool connection_status = false.obs;
   late Socket espsocket;
 
+void update_state(index){
+  
+}
+
+
   Future<void> initSocket() async {
     try {
       waiting_now.value = true;
-      espsocket = await Socket.connect('192.168.43.78', 80,
+      if (ipaddress == null) {
+        throw Exception(['mo ip address']);
+      }
+      espsocket = await Socket.connect(ipaddress, 80,
           timeout: const Duration(minutes: 5));
       waiting_now.value = false;
-      connection_status.value =true;
-      debugPrint("client : iam connected now");
+      connection_status.value = true;
+      debugPrint("client : iam  connected to  $ipaddress");
     } catch (e) {
       waiting_now.value = false;
       connection_status.value = false;
-      debugPrint("client : iam not connected now");
+      debugPrint("conn err :$e");
+      debugPrint("client : iam not connected to  $ipaddress");
     }
   }
 

@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:wifi/controller.dart';
@@ -12,15 +10,19 @@ class HomeScreen extends StatelessWidget {
   Text2SpeechManager ttscontroller = Get.put(Text2SpeechManager());
   Speech2TextManager sttcontroller = Get.put(Speech2TextManager());
   var buttontext = "new";
+
+  HomeScreen({super.key});
   @override
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
           leading: IconButton(
-            icon: const Icon(Icons.bluetooth),
-            onPressed: () => Get.to(() => WIFISCREEN(
-                  connecttd_status: espcontroller.connection_status.value,
-                )),
+            icon: const Icon(
+              Icons.wifi,
+              color: Colors.white,
+              size: 30,
+            ),
+            onPressed: () => Get.to(() => WIFISCREEN()),
           ),
           title: const Text(
             'REACH TO ALL',
@@ -31,6 +33,9 @@ class HomeScreen extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Obx(
+              () => ElevatedButton(onPressed:()=> sttcontroller.toggleLanguage(),child: MyText(buttontext:sttcontroller.language.value),),
+            ),
+           Obx(
               () => MyText(buttontext: sttcontroller.talk_text.value),
             ),
             Obx(
@@ -66,7 +71,7 @@ class HomeScreen extends StatelessWidget {
             Obx(
               () => espcontroller.waiting_now.value &&
                       espcontroller.mode.value == "esp"
-                  ? CircularProgressIndicator()
+                  ? const CircularProgressIndicator()
                   : Container(),
             )
           ],
@@ -107,7 +112,7 @@ class MyButton extends StatelessWidget {
           },
           child: Text(
             buttontext,
-            style: TextStyle(color: Colors.white, fontSize: 24),
+            style: const TextStyle(color: Colors.white, fontSize: 24),
           )),
     );
   }
@@ -124,10 +129,10 @@ class MyText extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: EdgeInsets.all(8),
+      padding: const EdgeInsets.all(8),
       child: Text(
         buttontext,
-        style: TextStyle(color: Colors.purple, fontSize: 24),
+        style: const TextStyle(color: Colors.purple, fontSize: 24),
       ),
     );
   }

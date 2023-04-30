@@ -1,36 +1,64 @@
-// Copyright 2017, Paul DeMarco.
-// All rights reserved. Use of this source code is governed by a
-// BSD-style license that can be found in the LICENSE file.
-
-import 'dart:async';
-import 'dart:io';
-import 'dart:math';
-
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:wifi/controller.dart';
 
 import 'home.dart';
 
 class WIFISCREEN extends StatefulWidget {
-  WIFISCREEN({required this.connecttd_status});
-  bool connecttd_status;
-
   @override
   State<WIFISCREEN> createState() => _WIFISCREENState();
 }
+//  '192.168.43.78'
 
 class _WIFISCREENState extends State<WIFISCREEN> {
-  TextEditingController addresscon = TextEditingController();
-  bool is_waiting = false;
+  TextEditingController _addtextcon = TextEditingController();
+
+  EspManager espcontroller = Get.find<EspManager>();
+
+  void _connect() async {
+    debugPrint('connecting ${_addtextcon.text}');
+    espcontroller.ipaddress = _addtextcon.text;
+    await espcontroller.initSocket();
+    setState(() {});
+  }
+
+  void _disconnect() {
+    espcontroller.connection_status.value = false;
+    setState(() {});
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        actions: [
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+            child: espcontroller.connection_status.value
+                ? ElevatedButton(
+                    onPressed: _disconnect,
+                    style:
+                        ElevatedButton.styleFrom(backgroundColor: Colors.black),
+                    child: const Text(
+                      "Disconnect",
+                      style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 20,
+                          fontWeight: FontWeight.w600),
+                    ),
+                  )
+                : Container(),
+          )
+        ],
         leading: IconButton(
-            icon: const Icon(Icons.arrow_back),
-            onPressed: () => Get.off(() => HomeScreen())),
+            icon: const Icon(
+              Icons.arrow_back,
+              color: Colors.white,
+              size: 30,
+            ),
+            onPressed: () => Get.to(() => HomeScreen())),
       ),
-      body: widget.connecttd_status
+      body: espcontroller.connection_status.value
           ? SingleChildScrollView(
               child: Column(
                 children: [
@@ -39,7 +67,7 @@ class _WIFISCREENState extends State<WIFISCREEN> {
                     child:
                         Image.asset("images/bluetooth2.PNG", fit: BoxFit.fill),
                   ),
-                  const MyText(buttontext: "NOT Connected !!"),
+                  MyText(buttontext: "Connected to ${_addtextcon.text}"),
                 ],
               ),
             )
@@ -47,15 +75,16 @@ class _WIFISCREENState extends State<WIFISCREEN> {
               child: Column(
                 children: [
                   Container(
+                    alignment: Alignment.topCenter,
                     child:
                         Image.asset("images/bluetooth4.png", fit: BoxFit.cover),
                   ),
-                  const MyText(buttontext: "You Are Connected enjoy"),
+                  const MyText(buttontext: "NOT Connected !!"),
                   Row(
                     children: [
                       Expanded(
                         child: TextField(
-                          controller: addresscon,
+                          controller: _addtextcon,
                           decoration: const InputDecoration(
                             helperText: 'Enter ESP ADDRESS',
                             icon: Icon(
@@ -69,9 +98,10 @@ class _WIFISCREENState extends State<WIFISCREEN> {
                         padding: const EdgeInsets.symmetric(
                             horizontal: 8, vertical: 5),
                         child: ElevatedButton(
-                            onPressed: () {},
+                            onPressed: _connect,
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: Color.fromARGB(255, 0, 0, 0),
+                              backgroundColor:
+                                  const Color.fromARGB(255, 0, 0, 0),
                             ),
                             child: const Text(
                               'Connect Now',
@@ -83,10 +113,10 @@ class _WIFISCREENState extends State<WIFISCREEN> {
                       ),
                     ],
                   ),
-                  is_waiting
+                  espcontroller.waiting_now.value
                       ? Container(
-                          padding: EdgeInsets.all(30),
-                          child: CircularProgressIndicator(),
+                          padding: const EdgeInsets.all(30),
+                          child: const CircularProgressIndicator(),
                         )
                       : Container(),
                 ],
