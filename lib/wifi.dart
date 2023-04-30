@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:wifi/controller.dart';
 
-import 'home.dart';
+import 'HomeOld.dart';
+import 'homeok.dart';
 
 class WIFISCREEN extends StatefulWidget {
   @override
@@ -56,7 +57,7 @@ class _WIFISCREENState extends State<WIFISCREEN> {
               color: Colors.white,
               size: 30,
             ),
-            onPressed: () => Get.to(() => HomeScreen())),
+            onPressed: () => Get.to(() => HomeOld())),
       ),
       body: espcontroller.connection_status.value == "connected"
           ? SingleChildScrollView(
@@ -130,6 +131,26 @@ class _WIFISCREENState extends State<WIFISCREEN> {
                 ],
               ),
             ),
+    );
+  }
+}
+
+class MyText extends StatelessWidget {
+  const MyText({
+    super.key,
+    required this.buttontext,
+  });
+
+  final String buttontext;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(8),
+      child: Text(
+        buttontext,
+        style: const TextStyle(color: Colors.purple, fontSize: 24),
+      ),
     );
   }
 }

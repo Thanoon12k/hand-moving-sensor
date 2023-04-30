@@ -5,13 +5,13 @@ import 'package:wifi/stt_controller.dart';
 import 'package:wifi/tts_controller.dart';
 import 'package:wifi/wifi.dart';
 
-class HomeScreen extends StatelessWidget {
+class HomeOk extends StatelessWidget {
   EspManager espcontroller = Get.put(EspManager());
   Text2SpeechManager ttscontroller = Get.put(Text2SpeechManager());
   Speech2TextManager sttcontroller = Get.put(Speech2TextManager());
   var buttontext = "new";
 
-  HomeScreen({super.key});
+  HomeOk({super.key});
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -63,6 +63,11 @@ class HomeScreen extends StatelessWidget {
                     controller: espcontroller,
                     ttscontroller: ttscontroller,
                     sttcontroller: sttcontroller),
+                MyButton(
+                    buttontext: "LISTEN",
+                    controller: espcontroller,
+                    ttscontroller: ttscontroller,
+                    sttcontroller: sttcontroller),
               ],
             ),
             Obx(
@@ -97,7 +102,7 @@ class MyButton extends StatelessWidget {
   final EspManager controller;
   final Text2SpeechManager ttscontroller;
   final Speech2TextManager sttcontroller;
-  void _listenPress() async {
+  void _getPress() async {
     await controller.ListernToEsp();
   }
 
@@ -111,24 +116,30 @@ class MyButton extends StatelessWidget {
     controller.current_mode.value = "idle";
   }
 
+  void _listenPress() async {
+    await sttcontroller.StartListining();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(8),
+      padding: const EdgeInsets.all(4),
       child: ElevatedButton(
           onPressed: () {
             debugPrint("button -$buttontext  clicked");
             if (buttontext == "GET DATA") {
-              _listenPress();
+              _getPress();
             } else if (buttontext == "TALK") {
               _talkPress();
             } else if (buttontext == "SET IDLE") {
               _idlePress();
+            } else if (buttontext == "LISTEN") {
+              _listenPress();
             }
           },
           child: Text(
             buttontext,
-            style: const TextStyle(color: Colors.white, fontSize: 24),
+            style: const TextStyle(color: Colors.white, fontSize: 16),
           )),
     );
   }
@@ -148,7 +159,7 @@ class MyText extends StatelessWidget {
       padding: const EdgeInsets.all(8),
       child: Text(
         buttontext,
-        style: const TextStyle(color: Colors.purple, fontSize: 24),
+        style: const TextStyle(color: Colors.purple, fontSize: 20),
       ),
     );
   }

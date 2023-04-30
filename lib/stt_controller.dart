@@ -9,38 +9,35 @@ class Speech2TextManager extends GetxController {
   String _lang_id = "العربية";
   RxString talk_text = "talk initial".obs;
   RxBool is_listining = false.obs;
+  RxBool is_pressed = false.obs;
 
   void stt_init() {
     stt.initialize(
-      
-      onStatus: (s) {
-        talk_text.value = s.toString();
-        debugPrint("sttus ${s.toString()}");
-      },
       onError: (e) {
-        debugPrint("talk error : $e");
+        is_listining = false.obs;
+        debugPrint("talk to text failed  -$e");
       },
     );
   }
 
-  Future<bool> StartListining() async {
-    
-    if (stt.isAvailable) {
-      if (!is_listining.value) {
-        stt.listen(
-         
+  Future StartListining() async {
+    try {
+      if (stt.isAvailable) {
+        await stt.listen(
           onResult: (result) {
-            talk_text.value = result.recognizedWords;
             is_listining.value = true;
-            debugPrint("res ${result.toString()}");
+            talk_text.value = result.recognizedWords;
+            if (result.finalResult) {
+              print('iam in finalr result -${result.recognizedWords}');
+            }
+            debugPrint("res ${result..toString()}");
           },
         );
-      } else {
-        is_listining.value = false;
-        stt.stop();
       }
+    } catch (e) {
+      debugPrint('listining exited : $e');
+      is_listining.value = false;
     }
-    return true;
   }
 
   void StopListining() async {
@@ -55,7 +52,7 @@ class Speech2TextManager extends GetxController {
     print("permision < ${status} >");
   }
 
-  void toggleLanguage()  {
+  void toggleLanguage() {
     if (_lang_id == "en-us") {
       _lang_id = "ar-eg";
       language.value = "العربية";
