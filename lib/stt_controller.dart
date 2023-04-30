@@ -7,7 +7,7 @@ class Speech2TextManager extends GetxController {
   late SpeechToText stt;
   RxString language = "العربية".obs;
   String _lang_id = "العربية";
-  RxString talk_text = "not talking".obs;
+  RxString talk_text = "talk initial".obs;
   RxBool is_listining = false.obs;
 
   void stt_init() {
@@ -24,7 +24,7 @@ class Speech2TextManager extends GetxController {
   }
 
   Future<bool> StartListining() async {
-    print("object");
+    
     if (stt.isAvailable) {
       if (!is_listining.value) {
         stt.listen(

@@ -17,13 +17,15 @@ class HomeScreen extends StatelessWidget {
     return Scaffold(
         appBar: AppBar(
           leading: IconButton(
-            icon: const Icon(
-              Icons.wifi,
-              color: Colors.white,
-              size: 30,
-            ),
-            onPressed: () => Get.to(() => WIFISCREEN()),
-          ),
+              icon: const Icon(
+                Icons.wifi,
+                color: Colors.white,
+                size: 30,
+              ),
+              onPressed: () {
+                espcontroller.current_mode.value = "idle";
+                Get.to(() => WIFISCREEN());
+              }),
           title: const Text(
             'REACH TO ALL',
             style: TextStyle(color: Colors.white, fontSize: 24),
@@ -33,13 +35,16 @@ class HomeScreen extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Obx(
-              () => ElevatedButton(onPressed:()=> sttcontroller.toggleLanguage(),child: MyText(buttontext:sttcontroller.language.value),),
+              () => ElevatedButton(
+                onPressed: () => sttcontroller.toggleLanguage(),
+                child: MyText(buttontext: sttcontroller.language.value),
+              ),
             ),
-           Obx(
+            Obx(
               () => MyText(buttontext: sttcontroller.talk_text.value),
             ),
             Obx(
-              () => MyText(buttontext: espcontroller.hand_text.value),
+              () => MyText(buttontext: espcontroller.new_word.value),
             ),
             Row(
               children: [
@@ -61,7 +66,8 @@ class HomeScreen extends StatelessWidget {
               ],
             ),
             Obx(
-              () => MyText(buttontext: "mode ${espcontroller.mode.value}"),
+              () => MyText(
+                  buttontext: "mode ${espcontroller.current_mode.value}"),
             ),
             Obx(
               () => MyText(
@@ -69,8 +75,7 @@ class HomeScreen extends StatelessWidget {
                       "espconniction ${espcontroller.connection_status.value}"),
             ),
             Obx(
-              () => espcontroller.waiting_now.value &&
-                      espcontroller.mode.value == "esp"
+              () => espcontroller.current_mode.value == "waiting_speak"
                   ? const CircularProgressIndicator()
                   : Container(),
             )
@@ -92,22 +97,33 @@ class MyButton extends StatelessWidget {
   final EspManager controller;
   final Text2SpeechManager ttscontroller;
   final Speech2TextManager sttcontroller;
+  void _listenPress() async {
+    await controller.ListernToEsp();
+  }
+
+  void _talkPress() async {
+    controller.current_mode.value = "waiting_speak";
+    await ttscontroller.speak(controller.new_word.value);
+    controller.current_mode.value = "talking";
+  }
+
+  void _idlePress() {
+    controller.current_mode.value = "idle";
+  }
 
   @override
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.all(8),
       child: ElevatedButton(
-          onPressed: () async {
+          onPressed: () {
+            debugPrint("button -$buttontext  clicked");
             if (buttontext == "GET DATA") {
-              await ttscontroller.speak(controller.hand_text.value);
-              controller.mode.value = "esp";
-              await controller.initSocket();
+              _listenPress();
             } else if (buttontext == "TALK") {
-              controller.mode.value = "talking";
-              sttcontroller.StartListining();
+              _talkPress();
             } else if (buttontext == "SET IDLE") {
-              controller.mode.value = "idle";
+              _idlePress();
             }
           },
           child: Text(

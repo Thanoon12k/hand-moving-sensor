@@ -23,7 +23,7 @@ class _WIFISCREENState extends State<WIFISCREEN> {
   }
 
   void _disconnect() {
-    espcontroller.connection_status.value = false;
+    espcontroller.connection_status.value = "disconnected";
     setState(() {});
   }
 
@@ -34,7 +34,7 @@ class _WIFISCREENState extends State<WIFISCREEN> {
         actions: [
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-            child: espcontroller.connection_status.value
+            child: espcontroller.connection_status.value == "connected"
                 ? ElevatedButton(
                     onPressed: _disconnect,
                     style:
@@ -58,7 +58,7 @@ class _WIFISCREENState extends State<WIFISCREEN> {
             ),
             onPressed: () => Get.to(() => HomeScreen())),
       ),
-      body: espcontroller.connection_status.value
+      body: espcontroller.connection_status.value == "connected"
           ? SingleChildScrollView(
               child: Column(
                 children: [
@@ -113,12 +113,20 @@ class _WIFISCREENState extends State<WIFISCREEN> {
                       ),
                     ],
                   ),
-                  espcontroller.waiting_now.value
-                      ? Container(
-                          padding: const EdgeInsets.all(30),
-                          child: const CircularProgressIndicator(),
-                        )
-                      : Container(),
+                  Column(
+                    children: [
+                      Obx(
+                        () => MyText(
+                            buttontext:
+                                "mode ${espcontroller.current_mode.value}"),
+                      ),
+                      Obx(
+                        () => MyText(
+                            buttontext:
+                                "espconniction ${espcontroller.connection_status.value}"),
+                      ),
+                    ],
+                  )
                 ],
               ),
             ),

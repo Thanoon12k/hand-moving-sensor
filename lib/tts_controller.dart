@@ -25,6 +25,7 @@ class Text2SpeechManager extends GetxController {
 
   Future speak(String text,
       {double volume = 1, double rate = 0.5, double pitch = 1.0}) async {
+        
     if (text != null) {
       print("iam speaaking $text");
       
