@@ -44,6 +44,7 @@ dependencies:
   dart_console: ^1.1.2
   ansi_up: ^1.0.0
   chalk: ^1.2.1
+  permission_handler: ^10.2.0
   
 dev_dependencies:
   flutter_test:

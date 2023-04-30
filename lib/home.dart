@@ -3,11 +3,13 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:wifi/controller.dart';
+import 'package:wifi/stt_controller.dart';
 import 'package:wifi/tts_controller.dart';
 
 class HomeScreen extends StatelessWidget {
   EspManager espcontroller = Get.put(EspManager());
   Text2SpeechManager ttscontroller = Get.put(Text2SpeechManager());
+  Speech2TextManager sttcontroller = Get.put(Speech2TextManager());
   var buttontext = "new";
   @override
   Widget build(BuildContext context) {
@@ -22,32 +24,41 @@ class HomeScreen extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Obx(
-              () => MyText(buttontext: espcontroller.connection_status.value),
+              () => MyText(buttontext: sttcontroller.talk_text.value),
             ),
             Obx(
-              () => MyText(buttontext: espcontroller.new_word.value),
+              () => MyText(buttontext: espcontroller.hand_text.value),
             ),
             Row(
               children: [
                 MyButton(
                     buttontext: "GET DATA",
                     controller: espcontroller,
-                    ttscontroller: ttscontroller),
+                    ttscontroller: ttscontroller,
+                    sttcontroller: sttcontroller),
                 MyButton(
                     buttontext: 'SET IDLE',
                     controller: espcontroller,
-                    ttscontroller: ttscontroller),
+                    ttscontroller: ttscontroller,
+                    sttcontroller: sttcontroller),
                 MyButton(
                     buttontext: "TALK",
                     controller: espcontroller,
-                    ttscontroller: ttscontroller),
+                    ttscontroller: ttscontroller,
+                    sttcontroller: sttcontroller),
               ],
             ),
             Obx(
-              () => MyText(buttontext: espcontroller.mode.value),
+              () => MyText(buttontext: "mode ${espcontroller.mode.value}"),
             ),
             Obx(
-              () => espcontroller.waiting_now.value
+              () => MyText(
+                  buttontext:
+                      "espconniction ${espcontroller.connection_status.value}"),
+            ),
+            Obx(
+              () => espcontroller.waiting_now.value &&
+                      espcontroller.mode.value == "esp"
                   ? CircularProgressIndicator()
                   : Container(),
             )
@@ -62,25 +73,31 @@ class MyButton extends StatelessWidget {
     required this.buttontext,
     required this.controller,
     required this.ttscontroller,
+    required this.sttcontroller,
   });
 
   final String buttontext;
   final EspManager controller;
   final Text2SpeechManager ttscontroller;
+  final Speech2TextManager sttcontroller;
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding:const EdgeInsets.all(8),
+      padding: const EdgeInsets.all(8),
       child: ElevatedButton(
           onPressed: () async {
             if (buttontext == "GET DATA") {
+              await ttscontroller.speak(controller.hand_text.value);
+
               controller.mode.value = "esp";
+
               await controller.initSocket();
             } else if (buttontext == "TALK") {
               controller.mode.value = "talking";
+              sttcontroller.StartListining();
             } else if (buttontext == "SET IDLE") {
-              ttscontroller.speak(controller.new_word.value);
+              controller.mode.value = "idle";
             }
           },
           child: Text(

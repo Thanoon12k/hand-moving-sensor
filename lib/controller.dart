@@ -14,7 +14,7 @@ class EspManager extends GetxController {
   late Timer myTimer;
   Text2SpeechManager speakmanager = Text2SpeechManager();
   RxString mode = "unknown".obs;
-  RxString new_word = "unknown".obs;
+  RxString hand_text = "unknown".obs;
   RxBool waiting_now = false.obs;
   RxString connection_status = "not connected".obs;
   late Socket espsocket;
@@ -44,7 +44,7 @@ class EspManager extends GetxController {
               printBlue("Client empty");
             } else {
               await Future.delayed(Duration(seconds: 5));
-              new_word.value = resp;
+              hand_text.value = resp;
               printBlue("Client $resp");
               await speakmanager.speak(resp);
             }
@@ -63,16 +63,8 @@ class EspManager extends GetxController {
     }
   }
 
-  Future<bool> isespconnected() async {
-    return (await espsocket.isEmpty & await espsocket.isEmpty);
-  }
-
-  Future<void> waitSeconds(int seconds) async {
-    waiting_now.value = true;
-    await Future.delayed(Duration(seconds: seconds));
-    waiting_now.value = false;
-
-    // code to be executed after waiting for 2 seconds
+  void handleNewWord(String sender, val) {
+    if (sender == "espmanager" && mode.value == "esp") {}
   }
 
   @override

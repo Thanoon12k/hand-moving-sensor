@@ -10,7 +10,7 @@ class Text2SpeechManager extends GetxController {
     // TODO: implement onInit
     ftts = FlutterTts();
     ftts.awaitSpeakCompletion(true);
-    await ftts.setVolume(10);
+    await ftts.setVolume(1);
     await ftts.setSpeechRate(0.5);
     await ftts.setPitch(1);
     super.onInit();
@@ -24,7 +24,7 @@ class Text2SpeechManager extends GetxController {
   }
 
   Future speak(String text,
-      {double volume = 10, double rate = 0.5, double pitch = 1.0}) async {
+      {double volume = 1, double rate = 0.5, double pitch = 1.0}) async {
     if (text != null) {
       print("iam speaaking $text");
       
