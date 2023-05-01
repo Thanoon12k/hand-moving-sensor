@@ -1,9 +1,9 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:wifi/controller.dart';
 
-import 'HomeOld.dart';
-import 'homeok.dart';
+import 'home.dart';
 
 class WIFISCREEN extends StatefulWidget {
   @override
@@ -57,7 +57,7 @@ class _WIFISCREENState extends State<WIFISCREEN> {
               color: Colors.white,
               size: 30,
             ),
-            onPressed: () => Get.to(() => HomeOld())),
+            onPressed: () => Get.to(() => HomeOk())),
       ),
       body: espcontroller.connection_status.value == "connected"
           ? SingleChildScrollView(
@@ -114,20 +114,22 @@ class _WIFISCREENState extends State<WIFISCREEN> {
                       ),
                     ],
                   ),
-                  Column(
-                    children: [
-                      Obx(
-                        () => MyText(
-                            buttontext:
-                                "mode ${espcontroller.current_mode.value}"),
-                      ),
-                      Obx(
-                        () => MyText(
-                            buttontext:
-                                "espconniction ${espcontroller.connection_status.value}"),
-                      ),
-                    ],
-                  )
+                  kDebugMode
+                      ? Column(
+                          children: [
+                            Obx(
+                              () => MyText(
+                                  buttontext:
+                                      "mode ${espcontroller.current_mode.value}"),
+                            ),
+                            Obx(
+                              () => MyText(
+                                  buttontext:
+                                      "espconniction ${espcontroller.connection_status.value}"),
+                            ),
+                          ],
+                        )
+                      : Container()
                 ],
               ),
             ),

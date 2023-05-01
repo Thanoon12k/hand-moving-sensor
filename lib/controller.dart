@@ -10,12 +10,7 @@ class EspManager extends GetxController {
   late Timer myTimer;
   Text2SpeechManager speakmanager = Text2SpeechManager();
   late Socket espsocket;
-  List<String> appstates = ['idle', 'getting_data', 'waiting_speak', 'talking'];
-  List<String> cccconectionstates = [
-    'not_connected',
-    'waiting_connect',
-    'connected'
-  ];
+
   RxString current_mode = "idle".obs;
   String? ipaddress;
   RxString connection_status = "not_connected".obs;
@@ -41,7 +36,7 @@ class EspManager extends GetxController {
 
   Future<void> ListernToEsp() async {
     try {
-      current_mode.value = "getting_data";
+      current_mode.value = "esp";
 
       if (connection_status.value != "connected") {
         current_mode.value = "idle";
@@ -55,11 +50,12 @@ class EspManager extends GetxController {
               throw Exception(['lisining exited to idle mode']);
             }
             String resp = String.fromCharCodes(data);
-            if (resp.length < 3) {
-              debugPrint("Client data is to short -$resp");
-            } else {
+            if (resp.length > 3) {
               new_word.value = resp;
+
               debugPrint("i got new data -$resp");
+            } else {
+              debugPrint("Client data is to short -$resp");
             }
           },
           onError: (e) {

@@ -1,8 +1,11 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:wifi/controller.dart';
 import 'package:wifi/stt_controller.dart';
 import 'package:wifi/tts_controller.dart';
+import 'package:wifi/widgets/buttons.dart';
+import 'package:wifi/widgets/textContainers.dart';
 import 'package:wifi/wifi.dart';
 
 class HomeOk extends StatelessWidget {
@@ -34,56 +37,55 @@ class HomeOk extends StatelessWidget {
         body: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Obx(
-              () => ElevatedButton(
-                onPressed: () => sttcontroller.toggleLanguage(),
-                child: MyText(buttontext: sttcontroller.language.value),
-              ),
-            ),
+            const SizedBox(height: 25),
+            const TitleText(titletext: 'The World Need Your Voice'),
+            const SizedBox(height: 45),
+            Obx(() => kReleaseMode
+                ? AwsomeText(text: sttcontroller.talk_text.value)
+                : AwsomeText(
+                    text:
+                        "( conn: ${espcontroller.connection_status.value} )    (mode  : ${espcontroller.current_mode.value}    )   (talk: ${sttcontroller.talk_text.value})    ( espdata:${espcontroller.new_word.value} )")),
+            const SizedBox(height: 10),
             Obx(
               () => MyText(buttontext: sttcontroller.talk_text.value),
             ),
-            Obx(
-              () => MyText(buttontext: espcontroller.new_word.value),
-            ),
             Row(
               children: [
-                MyButton(
-                    buttontext: "GET DATA",
-                    controller: espcontroller,
-                    ttscontroller: ttscontroller,
-                    sttcontroller: sttcontroller),
-                MyButton(
-                    buttontext: 'SET IDLE',
-                    controller: espcontroller,
-                    ttscontroller: ttscontroller,
-                    sttcontroller: sttcontroller),
-                MyButton(
-                    buttontext: "TALK",
-                    controller: espcontroller,
-                    ttscontroller: ttscontroller,
-                    sttcontroller: sttcontroller),
-                MyButton(
-                    buttontext: "LISTEN",
-                    controller: espcontroller,
-                    ttscontroller: ttscontroller,
-                    sttcontroller: sttcontroller),
+                Obx(
+                  () => RoundButton(
+                      color: espcontroller.current_mode.value == "esp"
+                          ? Colors.orange
+                          : Colors.blue,
+                      icon: Icons.back_hand,
+                      text: "GET DATA",
+                      controller: espcontroller,
+                      ttscontroller: ttscontroller,
+                      sttcontroller: sttcontroller),
+                ),
+                Obx(
+                  () => RoundButton(
+                      color: espcontroller.current_mode.value == "talking"
+                          ? Colors.orange
+                          : Colors.blue,
+                      icon: Icons.mic,
+                      text: 'TALK',
+                      controller: espcontroller,
+                      ttscontroller: ttscontroller,
+                      sttcontroller: sttcontroller),
+                ),
+                Obx(
+                  () => RoundButton(
+                      color: espcontroller.current_mode.value == "idle"
+                          ? Colors.orange
+                          : Colors.blue,
+                      icon: Icons.timer_off,
+                      text: 'SET IDLE',
+                      controller: espcontroller,
+                      ttscontroller: ttscontroller,
+                      sttcontroller: sttcontroller),
+                ),
               ],
             ),
-            Obx(
-              () => MyText(
-                  buttontext: "mode ${espcontroller.current_mode.value}"),
-            ),
-            Obx(
-              () => MyText(
-                  buttontext:
-                      "espconniction ${espcontroller.connection_status.value}"),
-            ),
-            Obx(
-              () => espcontroller.current_mode.value == "waiting_speak"
-                  ? const CircularProgressIndicator()
-                  : Container(),
-            )
           ],
         ));
   }

@@ -9,13 +9,13 @@ class Speech2TextManager extends GetxController {
   String _lang_id = "العربية";
   RxString talk_text = "talk initial".obs;
   RxBool is_listining = false.obs;
-  RxBool is_pressed = false.obs;
+  RxBool is_pressed_now = false.obs;
 
   void stt_init() {
     stt.initialize(
       onError: (e) {
         is_listining = false.obs;
-        debugPrint("talk to text failed  -$e");
+        debugPrint("talk to text not inite  -$e");
       },
     );
   }
@@ -24,6 +24,7 @@ class Speech2TextManager extends GetxController {
     try {
       if (stt.isAvailable) {
         await stt.listen(
+          
           onResult: (result) {
             is_listining.value = true;
             talk_text.value = result.recognizedWords;
