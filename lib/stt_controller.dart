@@ -7,7 +7,7 @@ class Speech2TextManager extends GetxController {
   late SpeechToText stt;
   RxString language = "العربية".obs;
   String _lang_id = "العربية";
-  RxString talk_text = "talk initial".obs;
+  RxString talk_text = "".obs;
   RxBool is_listining = false.obs;
   RxBool is_pressed_now = false.obs;
 

@@ -3,12 +3,22 @@ import 'package:get/get.dart';
 import 'package:get/get_state_manager/src/simple/get_controllers.dart';
 
 class Text2SpeechManager extends GetxController {
+  final RxString mytext = "text to speach start".obs;
   late FlutterTts ftts;
   @override
   void onInit() async {
     // TODO: implement onInit
-    ftts = FlutterTts();
+
     super.onInit();
+    await initSpeaktoText();
+  }
+
+  Future initSpeaktoText() async {
+    ftts = FlutterTts();
+    ftts.awaitSpeakCompletion(true);
+    await ftts.setVolume(1);
+    await ftts.setSpeechRate(0.5);
+    await ftts.setPitch(1);
   }
 
   @override
@@ -27,7 +37,7 @@ class Text2SpeechManager extends GetxController {
     }
   }
 
-  Future<void> StopSpeak() async {
+  Future<void> Stop() async {
     await ftts.stop();
   }
 }

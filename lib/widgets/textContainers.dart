@@ -33,17 +33,16 @@ class AwsomeText extends StatelessWidget {
       child: Padding(
         padding: const EdgeInsets.all(8.0),
         child: Text(
-            text,
-            style: const TextStyle(
-              fontSize: 26,
-              color: Colors.purple,
-              fontWeight: FontWeight.w700,
-              decorationColor: Colors.purple,
-              decorationThickness: 2,
-            ),
+          text,
+          style: const TextStyle(
+            fontSize: 26,
+            color: Colors.purple,
+            fontWeight: FontWeight.w700,
+            decorationColor: Colors.purple,
+            decorationThickness: 2,
           ),
         ),
-    
+      ),
     );
   }
 }

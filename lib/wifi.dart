@@ -129,7 +129,13 @@ class _WIFISCREENState extends State<WIFISCREEN> {
                             ),
                           ],
                         )
-                      : Container()
+                      : Container(),
+                  Obx(
+                    () => espcontroller.connection_status.value ==
+                            "waiting_connect"
+                        ? CircularProgressIndicator()
+                        : Container(),
+                  ),
                 ],
               ),
             ),

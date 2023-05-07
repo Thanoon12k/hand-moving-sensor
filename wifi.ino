@@ -3,7 +3,8 @@
 
 const char* ssid = "HS";
 const char* password = "&&&&2222";
-
+String pharse=" - ";
+int resolution=50;
 WiFiServer server(80);
 
 void setup() {

@@ -35,7 +35,6 @@ class RoundButton extends StatelessWidget {
     controller.current_mode.value = "esp";
 
     if (controller.connection_status.value == "connected") {
-      await ttscontroller.speak(controller.new_word.value);
       await controller.ListernToEsp();
 
       controller.current_mode.value = "esp";
@@ -53,6 +52,7 @@ class RoundButton extends StatelessWidget {
               height: 60,
               child: ElevatedButton(
                 onPressed: () async {
+                  controller.new_word.value = "";
                   if (text == "GET DATA") {
                     _getdataPress();
                   } else if (text == "TALK") {

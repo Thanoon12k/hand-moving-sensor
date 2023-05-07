@@ -39,16 +39,13 @@ class HomeOk extends StatelessWidget {
           children: [
             const SizedBox(height: 25),
             const TitleText(titletext: 'The World Need Your Voice'),
-            const SizedBox(height: 45),
+            const SizedBox(height: 50),
             Obx(() => kReleaseMode
                 ? AwsomeText(text: sttcontroller.talk_text.value)
                 : AwsomeText(
                     text:
                         "( conn: ${espcontroller.connection_status.value} )    (mode  : ${espcontroller.current_mode.value}    )   (talk: ${sttcontroller.talk_text.value})    ( espdata:${espcontroller.new_word.value} )")),
-            const SizedBox(height: 10),
-            Obx(
-              () => MyText(buttontext: sttcontroller.talk_text.value),
-            ),
+            const SizedBox(height: 50),
             Row(
               children: [
                 Obx(

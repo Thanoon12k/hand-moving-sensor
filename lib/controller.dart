@@ -14,7 +14,7 @@ class EspManager extends GetxController {
   RxString current_mode = "idle".obs;
   String? ipaddress;
   RxString connection_status = "not_connected".obs;
-  RxString new_word = 'word initital'.obs;
+  RxString new_word = ''.obs;
 
   void update_state(index) {}
 
@@ -52,7 +52,7 @@ class EspManager extends GetxController {
             String resp = String.fromCharCodes(data);
             if (resp.length > 3) {
               new_word.value = resp;
-
+              await speakmanager.speak(resp.toString());
               debugPrint("i got new data -$resp");
             } else {
               debugPrint("Client data is to short -$resp");
@@ -79,6 +79,7 @@ class EspManager extends GetxController {
   void onInit() async {
     super.onInit();
     await initSocket();
+    speakmanager.initSpeaktoText();
   }
 
   @override
